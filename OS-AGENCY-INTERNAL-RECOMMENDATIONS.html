@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O2N Agency OS — Issues &amp; Recommendations</title>
+  <style>
+    :root {
+      --primary: #144936;
+      --secondary: #5E6D66;
+      --surface: #ffffff;
+      --border: #d9e2dd;
+      --critical: #b42318;
+      --critical-bg: #fef3f2;
+      --high: #b54708;
+      --high-bg: #fffaeb;
+      --med: #175cd3;
+      --med-bg: #eff8ff;
+      --low: #027a48;
+      --low-bg: #ecfdf3;
+      --issue: #b42318;
+      --issue-bg: #fef3f2;
+      --rec: #175cd3;
+      --rec-bg: #eff8ff;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: #f4f6f5;
+      color: #1a2e26;
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    .hero {
+      background: linear-gradient(135deg, #0d2f24, #144936 55%, #1f5a42);
+      color: #fff;
+      padding: 28px 24px 32px;
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 800; margin-bottom: 10px;
+    }
+    .brand-mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #fff; color: var(--primary);
+      display: grid; place-items: center; font-weight: 800;
+    }
+    h1 {
+      font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+      font-weight: 800; letter-spacing: -.03em; margin-bottom: 8px;
+    }
+    .hero p { color: rgba(255,255,255,.88); }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
+    }
+    .legend span {
+      font-size: .75rem; font-weight: 700;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 999px; padding: 6px 12px;
+    }
+
+    .shell { width: 100%; margin: 0; padding: 0; }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+    .toolbar input {
+      flex: 1; min-width: 160px; border: 0; outline: none;
+      padding: 8px 12px; font: inherit; background: transparent;
+    }
+    .chip {
+      border: 1px solid var(--border); background: #fff; border-radius: 999px;
+      padding: 7px 12px; font-size: .78rem; font-weight: 700;
+      cursor: pointer; color: var(--secondary);
+    }
+    .chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .section-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: 8px; padding: 18px 18px 12px;
+      background: #fff; border-bottom: 1px solid var(--border);
+    }
+    .section-head h2 {
+      font-size: 1.05rem; font-weight: 800; color: var(--primary);
+      letter-spacing: -.02em;
+    }
+    .section-head p {
+      font-size: .84rem; color: var(--secondary); max-width: 70ch;
+    }
+    .section-head.issues h2 { color: var(--issue); }
+    .section-head.recs h2 { color: var(--rec); }
+
+    .table-wrap { background: var(--surface); width: 100%; }
+    .table-wrap + .section-head { border-top: 10px solid #f4f6f5; }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead th {
+      text-align: left; background: #f3f7f5; color: var(--secondary);
+      font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .05em; padding: 14px 18px;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+      position: sticky; top: 0; z-index: 1;
+    }
+    tbody td {
+      padding: 16px 18px; border-bottom: 1px solid var(--border);
+      vertical-align: top; color: #334942;
+    }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover td { background: #fafcfb; }
+    tbody tr.hidden { display: none; }
+
+    .col-num { width: 56px; font-weight: 800; color: var(--primary); }
+    .col-prio { width: 110px; }
+    .col-type { width: 120px; }
+    .col-id { width: 90px; font-family: ui-monospace, Consolas, monospace; font-size: .84rem; color: var(--primary); font-weight: 700; }
+    .col-title strong {
+      display: block; color: var(--primary); font-size: .95rem;
+      font-weight: 800; margin-bottom: 6px;
+    }
+    .col-title p { font-size: .86rem; color: #3d5249; margin: 0 0 6px; }
+    .col-title p:last-child { margin-bottom: 0; }
+    .col-where { width: 22%; font-size: .8rem; color: var(--secondary); }
+
+    .shots {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 12px;
+    }
+    .shots a {
+      display: block; max-width: 280px;
+      border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; background: #f8faf9;
+      text-decoration: none; color: var(--secondary);
+      font-size: .72rem; font-weight: 700;
+    }
+    .shots img {
+      display: block; width: 100%; height: auto;
+      max-height: 180px; object-fit: cover; object-position: top;
+      background: #eee;
+    }
+    .shots span {
+      display: block; padding: 6px 10px;
+    }
+
+    .prio, .type {
+      display: inline-block; border-radius: 999px;
+      padding: 4px 10px; font-size: .68rem; font-weight: 800;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .p0 { background: var(--critical-bg); color: var(--critical); }
+    .p1 { background: var(--high-bg); color: var(--high); }
+    .p2 { background: var(--med-bg); color: var(--med); }
+    .p3 { background: var(--low-bg); color: var(--low); }
+    .t-issue { background: var(--issue-bg); color: var(--issue); }
+    .t-rec { background: var(--rec-bg); color: var(--rec); }
+
+    .empty {
+      text-align: center; padding: 36px 20px;
+      color: var(--secondary); font-size: .9rem;
+      background: #fff; border-bottom: 1px solid var(--border);
+    }
+    .footer {
+      text-align: center; color: var(--secondary);
+      font-size: .75rem; padding: 12px 16px;
+      border-top: 1px solid var(--border); background: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .hero { padding: 22px 16px 26px; }
+      .toolbar { padding: 10px 12px; }
+      .toolbar input { flex: 1 1 100%; min-width: 0; }
+      .section-head { padding: 14px 14px 10px; }
+      thead th, tbody td { padding: 12px 14px; }
+    }
+
+    @media (max-width: 700px) {
+      .hero { padding: 18px 14px 22px; }
+      h1 { font-size: 1.3rem; }
+      .toolbar input {
+        flex: 1 1 100%; width: 100%;
+        background: #f4f6f5; border-radius: 999px; padding: 10px 14px;
+      }
+      .table-wrap { background: #f4f6f5; }
+      table, thead, tbody, th, td, tr { display: block; width: 100%; }
+      thead { display: none; }
+      tbody tr {
+        background: #fff; border-bottom: 8px solid #f4f6f5;
+        padding: 14px 14px 8px;
+      }
+      tbody tr:hover td { background: transparent; }
+      tbody tr.hidden { display: none; }
+      tbody td {
+        display: flex; gap: 10px; width: 100%;
+        padding: 8px 0; border-bottom: 1px solid #eef2ef; font-size: .88rem;
+      }
+      tbody td:last-child { border-bottom: 0; }
+      tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 72px; max-width: 72px;
+        font-size: .68rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: .04em; color: var(--secondary); padding-top: 2px;
+      }
+      .col-num::before { display: none; }
+      .col-title, .col-where { display: block; }
+      .col-title::before, .col-where::before { display: block; margin-bottom: 4px; }
+      .col-where { width: 100%; word-break: break-word; }
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      thead { display: table-header-group !important; }
+      table, thead, tbody, th, td, tr { display: revert; }
+      tbody td::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="brand"><span class="brand-mark">O2</span> o2nations · Agency OS</div>
+    <h1>Issues &amp; Recommendations</h1>
+      <p>
+      <strong>Issues</strong> = bugs / broken behavior found in review.
+      <strong>Recommendations</strong> = UI enhancements (improve UX, not necessarily broken).
+    </p>
+    <div class="legend">
+      <span>Issue</span>
+      <span>Recommendation (UI)</span>
+      <span>P0 Critical</span>
+      <span>P1 High</span>
+      <span>P2 Medium</span>
+      <span>P3 Low</span>
+    </div>
+  </header>
+
+  <div class="shell">
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Search issues &amp; recommendations…" />
+      <button type="button" class="chip on" data-filter="all">All</button>
+      <button type="button" class="chip" data-filter="issue">Issues</button>
+      <button type="button" class="chip" data-filter="rec">Recommendations</button>
+      <button type="button" class="chip" data-prio="P0">P0</button>
+      <button type="button" class="chip" data-prio="P1">P1</button>
+      <button type="button" class="chip" data-prio="P2">P2</button>
+      <button type="button" class="chip" data-prio="P3">P3</button>
+    </div>
+
+    <div class="section-head issues">
+      <div>
+        <h2>Issues</h2>
+        <p>Things that are wrong or broken today — security, auth, wrong role access, failed actions.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-id">ID</th>
+            <th class="col-type">Type</th>
+            <th class="col-prio">Priority</th>
+            <th class="col-title">Issue</th>
+            <th class="col-where">Where</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-issues"></tbody>
+      </table>
+      <div class="empty" id="empty-issues" style="display:none">No issues match.</div>
+    </div>
+
+    <div class="section-head recs">
+      <div>
+        <h2>Recommendations — UI enhancements</h2>
+        <p>Suggestions to improve clarity and usability. Not the same as bugs — these are design / UX improvements.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-id">ID</th>
+            <th class="col-type">Type</th>
+            <th class="col-prio">Priority</th>
+            <th class="col-title">Recommendation</th>
+            <th class="col-where">Where</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-recs"></tbody>
+      </table>
+      <div class="empty" id="empty-recs" style="display:none">No recommendations match.</div>
+    </div>
+  </div>
+
+  <p class="footer">docs/OS-AGENCY-INTERNAL-RECOMMENDATIONS.html · Issues = bugs · Recommendations = UI enhancements</p>
+
+  <script>
+    /**
+     * type: "issue" | "rec"
+     * priority: P0 | P1 | P2 | P3
+     * Issues = broken behavior. Recommendations = UI enhancements only.
+     */
+    const ITEMS = [
+      {
+        id: "ISS-001",
+        type: "issue",
+        priority: "P0",
+        title: "Lead Console and Gates Inbox visible to normal employees",
+        detail: [
+          "A normal employee (MEMBER), e.g. designer@o2n.com, can open Lead Console and see Gates Inbox (Approvals). That screen is for team leaders and admins only.",
+          "The UI only hides pages from CLIENT. Sidebar and App.tsx still show Lead Console to every internal user. LeadConsole.tsx always renders Gates Inbox — it never checks TEAM_LEADER or ADMIN.",
+          "The API is already correct: /api/dept-lead allows only TEAM_LEADER, LEADER, or ADMIN. So an employee may get empty data or 403, but they still see the approvals UI. Frontend and backend role rules do not match."
+        ],
+        where: "Sidebar · App.tsx · LeadConsole.tsx · /api/dept-lead",
+        screenshots: [
+          { src: "../screenshots/ISS-001.png", caption: "MEMBER sees Lead Console / Gates Inbox" }
+        ]
+      },
+      {
+        id: "ISS-002",
+        type: "issue",
+        priority: "P0",
+        title: "Create Project fails — POST has no auth token",
+        detail: [
+          "On the Projects page, Create New Project calls POST /api/projects without an Authorization header. Listing projects (GET) does send the Bearer token, but create does not.",
+          "The backend requires authenticateToken on /api/projects, so create returns 401. The UI still closes the modal and refreshes the list, so it looks like the project was created when it was not.",
+          "Also: the form never checks res.ok or shows an error. Status values from the UI (Strategy, Design, …) do not match the schema’s ACTIVE / COMPLETED / ON_HOLD labels — secondary inconsistency."
+        ],
+        where: "Projects.tsx (Create New Project form) · server/routes/projects.ts POST /"
+      },
+      {
+        id: "ISS-003",
+        type: "issue",
+        priority: "P1",
+        title: "Create Project — Status Phase control does not open options on click",
+        detail: [
+          "In the Create New Project modal, clicking the Status Phase field or arrow does not open the available status options.",
+          "The control is a text input + HTML datalist, not a real dropdown. Users cannot reliably discover Strategy, Design, Development, Marketing, Social, Review."
+        ],
+        where: "Projects.tsx · Create New Project modal · Status Phase (datalist)",
+        screenshots: [
+          { src: "../screenshots/ISS-003.png", caption: "Status Phase — options do not open on click" }
+        ]
+      },
+      {
+        id: "ISS-004",
+        type: "issue",
+        priority: "P1",
+        title: "Activity Log (system-wide audit trail) visible to all internal roles",
+        detail: [
+          "Command Center shows an Activity Log modal described as a “System-wide audit trail and recent updates” (who created projects, moved tasks, uploaded assets, etc.).",
+          "Any internal user who can open Command Center (not only ADMIN / TEAM_LEADER) can open View All and see the full log. There is no role check on ActivityModal.",
+          "A system-wide audit trail should be limited to specific roles (e.g. ADMIN, TEAM_LEADER, or Traffic) — not every MEMBER. Employees should not see org-wide activity of other people/projects by default.",
+          "Note: the list is still mock data today (mockActivities), but the access rule should be fixed before wiring real ActivityLog API data."
+        ],
+        where: "CommandCenter.tsx · ActivityModal.tsx · (future: /api/dashboard/activity)"
+      },
+      {
+        id: "REC-001",
+        type: "rec",
+        priority: "P1",
+        title: "Replace Status Phase datalist with a proper select dropdown",
+        detail: [
+          "UI enhancement: use a native &lt;select&gt; (or a custom pill-style dropdown matching O2N UI standards) for Status Phase so options always open on click.",
+          "Same pattern should be reused anywhere the app currently fakes a dropdown with datalist + free text.",
+          "Align option labels with backend status values (or map Strategy/Design/… to ACTIVE and keep phase as a separate field)."
+        ],
+        where: "Projects.tsx · Create New Project · Status Phase"
+      },
+      {
+        id: "REC-002",
+        type: "rec",
+        priority: "P2",
+        title: "Enhance Activity Log UI",
+        detail: [
+          "Improve the Activity Log modal UI beyond the current simple list: clearer hierarchy, filters (by user, project, action type, date), empty/loading states, and grouping (e.g. Today / Yesterday).",
+          "When real ActivityLog data is wired, support pagination or “load more”, links that jump to the related project/task, and role-appropriate scoping (see ISS-004).",
+          "Keep O2N design standards: surface cards, pill filters/buttons, readable metadata (timestamps, actor)."
+        ],
+        where: "ActivityModal.tsx · CommandCenter.tsx",
+        screenshots: [
+          { src: "../screenshots/REC-002.png", caption: "Activity Log UI — enhance further" }
+        ]
+      },
+      {
+        id: "REC-003",
+        type: "rec",
+        priority: "P1",
+        title: "Create Project — Client Name as dropdown of existing clients + create new",
+        detail: [
+          "Replace the free-text Client Name field with a dropdown (or searchable select) listing clients already in the org (/api/clients).",
+          "Add a clear action to create a new client when it is not in the list (inline “Add client” or small modal), then select it on the project form.",
+          "Avoids typos / duplicate client names from free text, and matches how Project Lead already uses a select of team users."
+        ],
+        where: "Projects.tsx · Create New Project modal · Client Name"
+      },
+      {
+        id: "REC-004",
+        type: "rec",
+        priority: "P1",
+        title: "Restructure dashboard sidebar like ClickUp navigation",
+        detail: [
+          "Today the sidebar is a flat list of all pages (Home, Traffic Board, Lead Console, My Day, Client Intake, System Assistant, Projects, Calendar, Assets) with weak role filtering.",
+          "Restructure more like ClickUp: top “Home / Everything” area, then personal space (My Day, assigned work), then Spaces/Folders style grouping — e.g. Delivery (Projects, Assets, Calendar), Operations (Traffic, Lead Console — leaders only), Clients (Intake), Tools (Brain), and Settings at the bottom.",
+          "Support nesting/collapse per group, favorites/pinned (store already has pinnedProjects / pinnedTasks but they are barely used in the sidebar), and role-based sections so MEMBER never sees Lead Console in the tree.",
+          "Optional: Spaces per client or department (ClickUp Spaces) later — start with clear groups + role visibility."
+        ],
+        where: "Sidebar.tsx · App.tsx routes · useUIStore (pinned items)"
+      },
+      {
+        id: "REC-005",
+        type: "rec",
+        priority: "P1",
+        title: "Missing product UI for Engagements, Deliverables, and Pipeline templates",
+        detail: [
+          "Prisma has Engagement / EngagementScopeItem, Deliverable, PipelineTemplate / PipelineStage — APIs exist — but there is no Engagement management UI, no first-class Deliverables page, and no template builder in the product.",
+          "Client Intake does not create engagements; scope does not auto-create deliverables in the UI. Projects are not linked clearly to deliverable pipelines (two parallel systems).",
+          "Marketplace isGlobal templates and editTemplates permission are unused in the UI. folderUrl / Drive folders are often simulated."
+        ],
+        where: "prisma Engagement · Deliverable · Pipeline* · /api/engagements · /api/deliverables · /api/templates"
+      },
+      {
+        id: "REC-006",
+        type: "rec",
+        priority: "P2",
+        title: "Missing UI for Revisions, Planner/Occasions, People/Skills, DeliveryLog",
+        detail: [
+          "RevisionRound model exists but there is no UI to open revision rounds; reject flows may not always create them.",
+          "Occasion / OccasionSubscription + /api/planner exist but there is no Planner UI or surfaced auto calendar generation.",
+          "UserSkill / PerformanceScore + /api/people (skills-matrix, leaderboard) exist but there is no People / HR UI; scores are not auto-calculated from SLA/quality in the product.",
+          "DeliveryLog exists for asset delivery history but has no UI; Asset summarize route is missing; /uploads is not statically served."
+        ],
+        where: "RevisionRound · Occasion* · UserSkill · PerformanceScore · DeliveryLog · Assets"
+      },
+      {
+        id: "REC-007",
+        type: "rec",
+        priority: "P2",
+        title: "Missing SaaS / white-label / Stripe surfaces and Landing onboard wire-up",
+        detail: [
+          "Organization has stripeCustomerId, subscriptionPlan/Status, customDomain, logo/colors — Stripe never charges or syncs; customDomain unused at runtime.",
+          "Landing / onboard CTA does not call POST /api/saas/onboard. Marketplace and whitelabel APIs have little or no product UI.",
+          "Wire Landing → onboard, then expose plan/white-label settings for ADMIN."
+        ],
+        where: "Organization model · /api/saas · Landing.tsx"
+      },
+      {
+        id: "REC-008",
+        type: "rec",
+        priority: "P2",
+        title: "Missing CLIENT binding, portal page, and richer Client/Project fields in UI",
+        detail: [
+          "User has no clientId — CLIENT gate approval and true client isolation cannot work cleanly. No seeded CLIENT user; no dedicated Client Portal page (API only).",
+          "Client model has no health score or AM owner field (UI invents health). Projects fall back to mock defaultProjects; CLIENT project filter is not by real ownership.",
+          "Calendar Event has no recurring events or attendees in schema/UI. PersonalNote has no reminders/due dates. AutomationRule has limited triggers and no visual builder.",
+          "Department / OS Role admin UI is thin; JWT User.role is easy to confuse with OS job Role."
+        ],
+        where: "User · Client · Project · Event · PersonalNote · AutomationRule · Department/Role · /api/client-portal"
+      },
+      {
+        id: "ISS-005",
+        type: "issue",
+        priority: "P0",
+        title: "Notifications API unauthenticated / mock user; ActivityLog not used by Command Center",
+        detail: [
+          "Notification API lacks proper JWT (mock userId). Cron SLA writes notifications but does not socket-emit. User notify* prefs are not fully honored.",
+          "ActivityLog is written on some mutations and GET /api/dashboard/activity exists, but Command Center Activity Log still uses mockActivities."
+        ],
+        where: "/api/notifications · ActivityLog · CommandCenter · ActivityModal · cron"
+      },
+      {
+        id: "ISS-006",
+        type: "issue",
+        priority: "P1",
+        title: "Member stage progress / time tracking UI thin; Tasks not linked to DeliverableStage",
+        detail: [
+          "DeliverableStage supports loggedMins and progress statuses, but member-facing UI for stage progress and time tracking is thin or missing.",
+          "Task / SubTask / Comment work as their own path and are not linked to DeliverableStage — estimatedTime is rarely used in the UI."
+        ],
+        where: "DeliverableStage · Task · My Day · Lead Console"
+      },
+      {
+        id: "ISS-007",
+        type: "issue",
+        priority: "P1",
+        title: "Client Intake — Edit Client menu clipped; MEMBER can edit/delete clients",
+        detail: [
+          "On the client card ⋯ menu, Edit Client (and often Delete) looks missing or cut off. The card uses overflow-hidden, so the dropdown is clipped inside the card instead of floating above it.",
+          "There is no role check on the menu or on PUT/DELETE /api/clients — only login is required. A MEMBER (e.g. designer) can Pause Work, Edit Client, and Delete Client the same as an admin.",
+          "Client create/edit/delete and payment pause should be limited to roles such as ADMIN, TEAM_LEADER, and/or Account Manager — not every employee."
+        ],
+        where: "ClientIntake.tsx (card overflow-hidden · ⋯ menu) · server/routes/clients.ts (no requireRole)",
+        screenshots: [
+          { src: "../screenshots/ISS-007.png", caption: "⋯ menu — Edit Client clipped / MEMBER can edit" }
+        ]
+      },
+      {
+        id: "ISS-008",
+        type: "issue",
+        priority: "P1",
+        title: "My Day — MEMBER cannot open task details (checkbox only)",
+        detail: [
+          "On My Day → Today’s Tasks, a member (e.g. Junior Designer) only sees a checkbox to mark the task done. There is no click/link/button to open full task details (description, comments, subtasks, status, project context).",
+          "MyDay.tsx renders each task as title + deliverable label + optional priority badge; the only interaction is toggleTaskStatus. TaskDetailsPanel exists elsewhere (e.g. Lead Console) but is not used on My Day.",
+          "Employees need a way to open task details from their daily list — not only check complete."
+        ],
+        where: "MyDay.tsx · Today’s Tasks · (TaskDetailsPanel unused here)",
+        screenshots: [
+          { src: "../screenshots/ISS-008.png", caption: "My Day task row — checkbox only, no open details" }
+        ]
+      },
+      {
+        id: "ISS-009",
+        type: "issue",
+        priority: "P1",
+        title: "Role names do not match across auth, permissions, cron, and seed",
+        detail: [
+          "This is a real issue — both in the codebase and in the seeders. Different parts of the system use different strings for the same jobs, so checks often never match a real user.",
+          "Codebase: JWT / User.role uses ADMIN, TEAM_LEADER, MEMBER, LEADER, ACCOUNT_MANAGER. The permissions blueprint uses TRAFFIC, DEPT_LEAD, AM. Cron SLA escalation looks for LEADER and TRAFFIC_MANAGER. Those lists are not the same vocabulary.",
+          "Seeders: traffic@o2n.com and am@o2n.com are stored as role MEMBER (even though osRole is Traffic Director / Account Manager). Auth, KPI, and cron read User.role — not the pretty OS Role name — so Traffic and AM behave like normal employees.",
+          "What you will see: Traffic user has no special traffic powers in the UI. SLA breach notifications may never reach a lead or traffic manager because nobody has role LEADER or TRAFFIC_MANAGER in the seeded data.",
+          "Fix needs both sides: pick one role vocabulary everywhere (auth, permissions, cron, team allowedRoles), then seed traffic/AM/lead users with those exact role strings."
+        ],
+        where: "prisma/seed.ts · server/middleware/permissions.ts · server/cron.ts · JWT User.role · KPI / team routes"
+      },
+      {
+        id: "ISS-010",
+        type: "issue",
+        priority: "P0",
+        title: "Assets upload / download / summarize broken",
+        detail: [
+          "Upload writes files to disk and stores url as /uploads/{filename}, but Express never serves the uploads folder — open/preview links fail. Summarize button calls POST /api/assets/:id/summarize which does not exist (404).",
+          "Deliverable “create Drive folder” only saves a fake drive.google.com URL. DeliveryLog API exists but has little or no UI. Assets page is project-folder oriented; deliverable versioning/deliver flows are barely exposed.",
+          "Planned direction (not implemented yet): stop relying on local disk as source of truth; store files in Google Drive; keep metadata in MySQL (PHP API). See REC-009 for the integration plan."
+        ],
+        where: "Assets.tsx · server/routes/assets.ts · server/index.ts (no static /uploads) · Deliverable.folderUrl · DeliveryLog"
+      },
+      {
+        id: "REC-009",
+        type: "rec",
+        priority: "P0",
+        title: "Assets → Google Drive storage + MySQL metadata (PHP API)",
+        detail: [
+          "Goal: files live in Google Drive; the app DB only stores metadata and Drive IDs/links. Fits the move to PHP + MySQL.",
+          "Phase 1 — Data model (MySQL): assets table (id, org_id, project_id, deliverable_id, name, mime_type, drive_file_id, drive_web_view_link, drive_web_content_link, version, uploaded_by, created_at); deliverables.folder_url / drive_folder_id; delivery_logs as today; optional asset_summaries (asset_id, summary_text, model, created_at).",
+          "Phase 2 — Drive setup: Google Cloud project, Drive API enabled, service account (or OAuth for shared drives). One root folder per org; subfolders Client / Engagement / Deliverable (or Project). Store drive_folder_id on deliverable when created — real API, not simulated URLs.",
+          "Phase 3 — PHP API: POST /assets/upload (multipart → upload to Drive folder → insert MySQL row); GET /assets (list from MySQL); GET /assets/:id/download (redirect or proxy Drive content link); POST /assets/:id/summarize (fetch file text/thumbnail via Drive or Gemini, save summary); POST /deliverables/:id/folder; POST /deliverables/:id/deliver → delivery_logs.",
+          "Phase 4 — Frontend: Assets page uses Drive webViewLink for open/preview (not /uploads/…). Summarize uses new endpoint. Show version + delivery history. Keep project folders in UI mapped to Drive folders.",
+          "Phase 5 — Cutover: migrate any existing local uploads into Drive once; remove multer disk dest as source of truth. Do not serve local /uploads in production."
+        ],
+        where: "Assets.tsx · PHP assets API · Google Drive API · MySQL assets / delivery_logs · Deliverable.folderUrl"
+      },
+    ];
+
+    let typeFilter = "all";
+    let prioFilter = "all";
+
+    function prioClass(p) {
+      return p === "P0" ? "p0" : p === "P1" ? "p1" : p === "P2" ? "p2" : "p3";
+    }
+    function prioLabel(p) {
+      return p === "P0" ? "P0 Critical" : p === "P1" ? "P1 High" : p === "P2" ? "P2 Medium" : "P3 Low";
+    }
+
+    function rowHtml(item, index) {
+      const typeLabel = item.type === "issue" ? "Issue" : "UI Rec";
+      const typeClass = item.type === "issue" ? "t-issue" : "t-rec";
+      const detailLabel = item.type === "issue" ? "Issue" : "Recommendation";
+      const shots = (item.screenshots && item.screenshots.length)
+        ? `<div class="shots">${item.screenshots.map((s) =>
+            `<a href="${s.src}" target="_blank" rel="noopener"><img src="${s.src}" alt="${s.caption || item.id}" /><span>${s.caption || "Screenshot"}</span></a>`
+          ).join("")}</div>`
+        : "";
+      return `<tr data-type="${item.type}" data-prio="${item.priority}">
+        <td class="col-num" data-label="#">${index}</td>
+        <td class="col-id" data-label="ID">${item.id}</td>
+        <td class="col-type" data-label="Type"><span class="type ${typeClass}">${typeLabel}</span></td>
+        <td class="col-prio" data-label="Priority"><span class="prio ${prioClass(item.priority)}">${prioLabel(item.priority)}</span></td>
+        <td class="col-title" data-label="${detailLabel}">
+          <strong>${item.title}</strong>
+          ${item.detail.map((p) => `<p>${p}</p>`).join("")}
+          ${shots}
+        </td>
+        <td class="col-where" data-label="Where">${item.where}</td>
+      </tr>`;
+    }
+
+    function visible(item, q) {
+      if (typeFilter !== "all" && item.type !== typeFilter) return false;
+      if (prioFilter !== "all" && item.priority !== prioFilter) return false;
+      if (!q) return true;
+      const hay = (item.id + item.title + item.where + item.detail.join(" ")).toLowerCase();
+      return hay.includes(q);
+    }
+
+    function render(q = "") {
+      const query = q.toLowerCase();
+      const issues = ITEMS.filter((i) => i.type === "issue");
+      const recs = ITEMS.filter((i) => i.type === "rec");
+
+      let iNum = 0;
+      document.getElementById("tbody-issues").innerHTML = issues.map((item) => {
+        iNum += 1;
+        const show = visible(item, query);
+        return rowHtml(item, iNum).replace("<tr ", `<tr class="${show ? "" : "hidden"}" `);
+      }).join("");
+
+      let rNum = 0;
+      document.getElementById("tbody-recs").innerHTML = recs.map((item) => {
+        rNum += 1;
+        const show = visible(item, query);
+        return rowHtml(item, rNum).replace("<tr ", `<tr class="${show ? "" : "hidden"}" `);
+      }).join("");
+
+      const visIssues = document.querySelectorAll("#tbody-issues tr:not(.hidden)").length;
+      const visRecs = document.querySelectorAll("#tbody-recs tr:not(.hidden)").length;
+      const emptyI = document.getElementById("empty-issues");
+      const emptyR = document.getElementById("empty-recs");
+      emptyI.style.display = issues.length === 0 || (typeFilter !== "rec" && visIssues === 0) ? "block" : "none";
+      emptyR.style.display = recs.length === 0 || (typeFilter !== "issue" && visRecs === 0) ? "block" : "none";
+      if (typeFilter === "rec") emptyI.style.display = "none";
+      if (typeFilter === "issue") emptyR.style.display = "none";
+      if (!issues.length) { emptyI.textContent = "No issues logged yet."; emptyI.style.display = "block"; }
+      if (!recs.length) { emptyR.textContent = "No UI recommendations logged yet."; emptyR.style.display = typeFilter === "issue" ? "none" : "block"; }
+    }
+
+    render();
+    document.getElementById("search").addEventListener("input", (e) => render(e.target.value));
+
+    document.querySelectorAll(".toolbar .chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        if (chip.dataset.filter) {
+          document.querySelectorAll(".toolbar .chip[data-filter]").forEach((c) => c.classList.remove("on"));
+          chip.classList.add("on");
+          typeFilter = chip.dataset.filter;
+        }
+        if (chip.dataset.prio) {
+          const already = prioFilter === chip.dataset.prio && chip.classList.contains("on");
+          document.querySelectorAll(".toolbar .chip[data-prio]").forEach((c) => c.classList.remove("on"));
+          if (already) {
+            prioFilter = "all";
+          } else {
+            chip.classList.add("on");
+            prioFilter = chip.dataset.prio;
+          }
+        }
+        render(document.getElementById("search").value);
+      });
+    });
+  </script>
+</body>
+</html>
