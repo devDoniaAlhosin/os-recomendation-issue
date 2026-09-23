@@ -10,6 +10,6 @@ Images used by `docs/reports/OS-AGENCY-INTERNAL-RECOMMENDATIONS.html`.
 | `ISS-008.png` | My Day — no task details, checkbox only |
 | `REC-002.png` | Activity Log UI enhancement |
 
-**Path in HTML** (file lives under `docs/reports/`): `../screenshots/ISS-001.png`
+**Path in HTML** (report lives in `docs/reports/`): `screenshots/ISS-001.png`
 
 Add new screenshots here using the same ID name (`ISS-00X.png` / `REC-00X.png`), then add a `screenshots: [...]` block on that item in the HTML.
